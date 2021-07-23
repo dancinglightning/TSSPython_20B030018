@@ -133,7 +133,7 @@ while True:
 		if bird_rect.top <= 5:
 			game_over = True
 
-		if bird_rect.bottom >=550:
+		if bird_rect.bottom >=505:
 			game_over =True
 
 		
@@ -148,7 +148,7 @@ while True:
 
 	floor_x -= 1
 
-	if floor_x < -448:
+	if floor_x < -50:
 		floor_x = 0
 
 	draw_floor()
