@@ -30,7 +30,7 @@ game_over_surface = pygame.transform.scale2x(pygame.image.load('flappy_assets/me
 game_over_rect = game_over_surface.get_rect(center = (288,512))
 
 
-pipe_list = []
+pipe_list = [i for i in range(10000)]
 
 # We have created this custom event which will be automatically trigerred according to the time set
 SPAWNPIPE = pygame.USEREVENT
@@ -41,44 +41,24 @@ pipe_height = [400,600,800]
 
 
 
-def create_pipe():
-	"""
-	Create and return rects for 2 pipes using pip_surface(one at top and other at bottom) You can use functions from random 
-	to change the height of the pipes.(but keeping the size of opening constant) 
-	"""
+def create_pipe(pipe_list):
+	pipes = []
+	pipe_rect_list = []
+	for i in range(len(pipe_list)):
+    		pipes = pipes  + [pygame.image.load('pipe.png')]
+    		pipe_rect_list  = pipe_rect_list + [pipes[i].get_rect(topleft = [576 + (10*i), 800])]
+	return pipes, pipe_rect_list
 
 
+def move_pipes(pipe_rect_list):
+	for i in range(len(pipe_rect_list)):
+    		pipe_rect_list[i].left += 5
+	return pipe_rect_list
 
 
-
-def move_pipes(pipes):
-	"""
-	Move the pipes back in order to give the feeling that the bird is moving forward.
-	"""
-
-
-
-
-
-
-def draw_pipes(pipes):
-	"""
-	Draw the pipes on the screen using the rects and pipe_surface. Use blit(). You will have to judge whether its a top pipe or 
-	a bottom pipe and appropriately use the image. You can use pygame.transform.flip() to flip an image.
-	"""
-
-
-
-
-
-
-
-def remove_pipes(pipes):
-	"""
-	As the pipes reach the left side of the screen remove them. 
-	"""
-
-
+def draw_pipes(pipes, pipe_rect_list):
+    	for i in range(len(pipe_rect_list)):
+    			screen.blit(pipes[i], pipe_rect_list[i])
 
 
 
@@ -141,13 +121,9 @@ def update_bird(pipe_list):
 
 
 
-def update_pipes(pipe_list):
-	"""
-	Using the above defined functions, move, remove and draw the pipes
-	"""
-
-
-
+def update_pipes(pipe_list, pipes, pipe_rect_list):
+	move_pipes(pipe_rect_list)
+	draw_pipes(pipes, pipe_rect_list)
 
 
 
@@ -160,7 +136,7 @@ def update_score():
 
 
 
-
+comp_list = create_pipe(pipe_list)
 
 while True:
 	check_for_events()
@@ -168,7 +144,7 @@ while True:
 
 	if game_active:
 		update_bird(pipe_list)
-		update_pipes(pipe_list)
+		update_pipes(pipe_list, comp_list[0], comp_list[1])
 
 		update_score()
 		score_display('main_game')
@@ -181,9 +157,6 @@ while True:
 	# Change the position of the floor and draw it. Make sure if it reaches the left end reset it
 	
 
-
-
-	
 
 	pygame.display.flip()
 
