@@ -1,5 +1,6 @@
 import pygame, random
 from pygame.locals import *
+import time
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
