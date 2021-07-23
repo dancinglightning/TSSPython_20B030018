@@ -32,6 +32,33 @@ def create_pipes():
 	bottom_pipe = pipe_image.get_rect(midtop=(467, pipe_y))
 	return top_pipe, bottom_pipe
 
+def draw_score(game_state):
+	if game_state == "game_on":
+			score_text = score_font.render(str(score), True, (255,255,255))
+			score_rect = score_text.get_rect(center=(WIDTH//2, 66))
+			screen.blit(score_text, score_rect)
+	elif game_state == "game_over":
+			score_text = score_font.render(f"Score: {score}", True, (255,255,255))
+			score_rect = score_text.get_rect(center=(WIDTH//2, 66))
+			screen.blit(score_text, score_rect)
+
+			high_score_text = score_font.render(f"High Score: {high_score}", True, (255,255,255))
+			high_score_rect = high_score_text.get_rect(center=(WIDTH//2, 506))
+			screen.blit(high_score_text, high_score_rect)
+
+def score_update():
+	global score, is_score_time, high_score
+	if PIPES:
+		for pipe in PIPES:
+			if 65 < pipe.centerx < 69 and is_score_time:
+				score += 1
+				is_score_time = False
+
+			if pipe.left <= 0:
+				is_score_time = True
+
+	if score > high_score:
+		high_score = score
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -49,6 +76,11 @@ BIRDS = [bird_upflap, bird_midflap, bird_downflap]
 bird_index = 0
 BIRD_FLAP = pygame.USEREVENT
 pygame.time.set_timer(BIRD_FLAP, 100)
+
+score = 0
+high_score = 0
+is_score_time = True
+score_font = pygame.font.Font('D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\fonts\\04B_19.ttf', 27)
 
 bird_image = BIRDS[bird_index]
 bird_rect = bird_image.get_rect(center=(67, 622//2))
@@ -90,6 +122,8 @@ while True:
 				PIPES = []
 				bird_movement = 0
 				bird_rect = bird_image.get_rect(center=(67, 622//2))
+				is_score_time = True
+				score = 0
 
 		if event.type == BIRD_FLAP:
 			bird_index += 1
@@ -122,9 +156,12 @@ while True:
 		
 		screen.blit(rotated_bird, bird_rect)
 		pipe_animation()
+		score_update()
+		draw_score("game_on")
 
 	elif game_over:
 		screen.blit(game_over_image, game_over_rect)
+		draw_score("game_over")
 
 	floor_x -= 1
 
