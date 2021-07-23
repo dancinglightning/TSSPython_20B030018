@@ -80,7 +80,7 @@ pygame.time.set_timer(BIRD_FLAP, 100)
 score = 0
 high_score = 0
 is_score_time = True
-score_font = pygame.font.Font('D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\fonts\\04B_19.ttf', 27)
+score_font = pygame.font.Font('D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\04B_19.ttf', 27)
 
 bird_image = BIRDS[bird_index]
 bird_rect = bird_image.get_rect(center=(67, 622//2))
