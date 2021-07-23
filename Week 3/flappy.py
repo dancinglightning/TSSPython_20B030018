@@ -23,8 +23,8 @@ def pipe_animation():
 			game_over = True
 
 def draw_floor():
-	screen.blit(floor_image, (floor_x, 508))
-	screen.blit(floor_image, (floor_x+448, 508))	
+	screen.blit(floor_image, (floor_x, 505))
+	screen.blit(floor_image, (floor_x+448, 505))	
 
 def create_pipes():
 	pipe_y = random.choice(pipe_height)
@@ -32,27 +32,15 @@ def create_pipes():
 	bottom_pipe = pipe_image.get_rect(midtop=(467, pipe_y))
 	return top_pipe, bottom_pipe
 
-# Basic setup
+
 pygame.init()
 clock = pygame.time.Clock()
-
-
-# Window
-WIDTH, HEIGHT = 288, 624
+WIDTH, HEIGHT = 288, 610
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Flappy Bird")
-
-
-# Background
 background_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\background.png").convert()
-
-
-# Floor
 floor_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\floor.png").convert()
 floor_x = 0
-
-
-# Bird
 bird_upflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
 bird_midflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
 bird_downflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
@@ -71,11 +59,11 @@ gravity = 0.098
 
 # Pipes
 pipe_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\pipe.png").convert_alpha()
-pipe_height = [350, 400, 533, 490]
+pipe_height = [280, 350, 400, 490]
 
 PIPES = []
 CREATE_PIPES = pygame.USEREVENT+1
-pygame.time.set_timer(CREATE_PIPES, 1200)
+pygame.time.set_timer(CREATE_PIPES, 1000)
 
 
 # Game over
