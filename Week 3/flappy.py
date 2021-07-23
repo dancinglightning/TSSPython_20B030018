@@ -1,160 +1,168 @@
-import pygame, random
+import pygame
+import sys
+import random
 from pygame.locals import *
-import time
-
-SCREEN_WIDTH = 400
-SCREEN_HEIGHT = 800
-SPEED = 10
-GRAVITY = 1
-GAME_SPEED = 5
-
-GROUND_WIDTH = 2 * SCREEN_WIDTH
-GROUND_HEIGHT = 100
-
-PIPE_WIDTH = 80
-PIPE_HEIGHT = 500
-
-PIPE_GAP = 200
-
-class Bird(pygame.sprite.Sprite):
-    
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.image = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\bluebird.png').convert_alpha()
-
-        self.speed = SPEED
-
-        self.current_image = 0
-
-        self.mask = pygame.mask.from_surface(self.image)
-
-        self.rect = self.image.get_rect()
-        self.rect[0] = SCREEN_WIDTH / 2
-        self.rect[1] = SCREEN_HEIGHT / 2
-
-    def update(self):
-
-        self.speed += GRAVITY
-
-        # Update height
-        self.rect[1] += self.speed
-    
-    def bump(self):
-        self.speed = -SPEED
 
 
-class Pipe(pygame.sprite.Sprite):
-    
-    def __init__(self, inverted, xpos, ysize):
-        pygame.sprite.Sprite.__init__(self)
+def pipe_animation():
+	global game_over, is_score_time
+	for pipe in PIPES:
+		if pipe.top < 0:
+			flipped_pipe = pygame.transform.flip(pipe_image, False, True)
+			screen.blit(flipped_pipe, pipe)
+		else:
+			screen.blit(pipe_image, pipe)
 
-        self.image = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\pipe.png').convert_alpha()
-        self.image = pygame.transform.scale(self.image, (PIPE_WIDTH,PIPE_HEIGHT))
+		pipe.centerx -= 3
 
-        self.rect = self.image.get_rect()
-        self.rect[0] = xpos
+		if pipe.right < 0:
+			PIPES.remove(pipe)
 
-        if inverted:
-            self.image = pygame.transform.flip(self.image, False, True)
-            self.rect[1] = - (self.rect[3] - ysize)
-        else:
-            self.rect[1] = SCREEN_HEIGHT - ysize
 
-        self.mask = pygame.mask.from_surface(self.image)
+		if bird_rect.colliderect(pipe):
+			game_over = True
 
-    def update(self):
-        self.rect[0] -= GAME_SPEED
+def draw_floor():
+	screen.blit(floor_image, (floor_x, 550))
+	screen.blit(floor_image, (floor_x+448, 550))	
 
-class Ground(pygame.sprite.Sprite):
+def create_pipes():
+	pipe_y = random.choice(pipe_height)
+	top_pipe = pipe_image.get_rect(midbottom=(467, pipe_y-200))
+	bottom_pipe = pipe_image.get_rect(midtop=(467, pipe_y))
+	return top_pipe, bottom_pipe
 
-    def __init__(self, xpos):
-        pygame.sprite.Sprite.__init__(self)
+def score_update():
+	global score, is_score_time, high_score
+	if PIPES:
+		for pipe in PIPES:
+			if 65 < pipe.centerx < 69 and is_score_time:
+				score += 1
+				is_score_time = False
 
-        self.image = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\floor.png').convert_alpha()
-        self.image = pygame.transform.scale(self.image, (GROUND_WIDTH, GROUND_HEIGHT))
+			if pipe.left <= 0:
+				is_score_time = True
 
-        self.mask = pygame.mask.from_surface(self.image)
+	if score > high_score:
+		high_score = score
 
-        self.rect = self.image.get_rect()
-        self.rect[0] = xpos
-        self.rect[1] = SCREEN_HEIGHT - GROUND_HEIGHT
-    
-    def update(self):
-        self.rect[0] -= GAME_SPEED
-
-def is_off_screen(sprite):
-    return sprite.rect[0] < -(sprite.rect[2])
-
-def get_random_pipes(xpos):
-    size = random.randint(100, 300)
-    pipe = Pipe(False, xpos, size)
-    pipe_inverted = Pipe(True, xpos, SCREEN_HEIGHT - size - PIPE_GAP)
-    return (pipe, pipe_inverted)
-
+# Basic setup
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-BACKGROUND = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\background.png')
-BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-bird_group = pygame.sprite.Group()
-bird = Bird()
-bird_group.add(bird)
-
-ground_group = pygame.sprite.Group()
-for i in range(2):
-    ground = Ground(GROUND_WIDTH * i)
-    ground_group.add(ground)
-
-pipe_group = pygame.sprite.Group()
-for i in range(2):
-    pipes = get_random_pipes(SCREEN_WIDTH * i + 800)
-    pipe_group.add(pipes[0])
-    pipe_group.add(pipes[1])
-
-
 clock = pygame.time.Clock()
 
+
+# Window
+WIDTH, HEIGHT = 350, 622
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Flappy Bird")
+
+
+# Background
+background_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\background.png").convert()
+
+
+# Floor
+floor_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\floor.png").convert()
+floor_x = 0
+
+
+# Bird
+bird_upflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
+bird_midflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
+bird_downflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
+
+BIRDS = [bird_upflap, bird_midflap, bird_downflap]
+bird_index = 0
+BIRD_FLAP = pygame.USEREVENT
+pygame.time.set_timer(BIRD_FLAP, 200)
+
+bird_image = BIRDS[bird_index]
+bird_rect = bird_image.get_rect(center=(67, 622//2))
+
+bird_movement = 0
+gravity = 0.17
+
+
+# Pipes
+pipe_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\pipe.png").convert_alpha()
+pipe_height = [350, 400, 533, 490]
+
+PIPES = []
+CREATE_PIPES = pygame.USEREVENT+1
+pygame.time.set_timer(CREATE_PIPES, 1200)
+
+
+# Game over
+game_over = False
+game_over_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\message.png").convert_alpha()
+game_over_rect = game_over_image.get_rect(center=(WIDTH//2,HEIGHT//2))
+
+
+# Score
+score = 0
+high_score = 0
+is_score_time = True
+
+# Game loop
 while True:
-    clock.tick(30)
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
+	clock.tick(120)
+	for event in pygame.event.get():
+		if event.type == QUIT:
+			pygame.quit()
+			sys.exit()
 
-        if event.type == KEYDOWN:
-            if event.key == K_SPACE:
-                bird.bump()
+		if event.type == KEYDOWN:
+			if event.key == K_SPACE and not game_over:
+				bird_movement = 0
+				bird_movement = -7
 
-    screen.blit(BACKGROUND, (0, 0))
+			if event.key == K_SPACE and game_over:
+				game_over = False
+				PIPES = []
+				bird_movement = 0
+				bird_rect = bird_image.get_rect(center=(67, 622//2))
+				is_score_time = True
+				score = 0
 
-    if is_off_screen(ground_group.sprites()[0]):
-        ground_group.remove(ground_group.sprites()[0])
+		if event.type == BIRD_FLAP:
+			bird_index += 1
 
-        new_ground = Ground(GROUND_WIDTH - 20)
-        ground_group.add(new_ground)
+			if bird_index > 2:
+				bird_index = 0
 
-    if is_off_screen(pipe_group.sprites()[0]):
-        pipe_group.remove(pipe_group.sprites()[0])
-        pipe_group.remove(pipe_group.sprites()[0])
+			bird_image = BIRDS[bird_index]
+			bird_rect = bird_image.get_rect(center=bird_rect.center)
 
-        pipes = get_random_pipes(SCREEN_WIDTH * 2)
+		if event.type == CREATE_PIPES:
+			PIPES.extend(create_pipes())
 
-        pipe_group.add(pipes[0])
-        pipe_group.add(pipes[1])
+	screen.blit(background_image, (0,0))
+	if not game_over:
 
-    bird_group.update()
-    ground_group.update()
-    pipe_group.update()
+		bird_movement += gravity
 
-    bird_group.draw(screen)
-    pipe_group.draw(screen)
-    ground_group.draw(screen)
+		bird_rect.centery += bird_movement
 
-    pygame.display.update()
+		rotated_bird = pygame.transform.rotozoom(bird_image, bird_movement * -6, 1)
 
-    if (pygame.sprite.groupcollide(bird_group, ground_group, False, False, pygame.sprite.collide_mask) or
-       pygame.sprite.groupcollide(bird_group, pipe_group, False, False, pygame.sprite.collide_mask)):
-        # Game over
-        input()
-        break
+
+		if bird_rect.top <= 5:
+			game_over = True
+
+		if bird_rect.bottom >=550:
+			game_over =True
+
+		
+		screen.blit(rotated_bird, bird_rect)
+		pipe_animation()
+		score_update()
+	elif game_over:
+		screen.blit(game_over_image, game_over_rect)
+
+	floor_x -= 1
+
+	if floor_x < -448:
+		floor_x = 0
+
+	draw_floor()
+	pygame.display.update()
