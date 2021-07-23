@@ -84,7 +84,7 @@ bird_movement = 0
 gravity = 0.098
 
 pipe_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\pipe.png").convert_alpha()
-pipe_height = [280, 350, 400, 490]
+pipe_height = [210, 280, 350, 400, 490]
 
 PIPES = []
 CREATE_PIPES = pygame.USEREVENT+1
