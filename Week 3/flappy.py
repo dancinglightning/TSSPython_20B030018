@@ -1,164 +1,159 @@
-import pygame, sys, random 
+import pygame, random
+from pygame.locals import *
+
+SCREEN_WIDTH = 400
+SCREEN_HEIGHT = 800
+SPEED = 10
+GRAVITY = 1
+GAME_SPEED = 5
+
+GROUND_WIDTH = 2 * SCREEN_WIDTH
+GROUND_HEIGHT = 100
+
+PIPE_WIDTH = 80
+PIPE_HEIGHT = 500
+
+PIPE_GAP = 200
+
+class Bird(pygame.sprite.Sprite):
+    
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\bluebird.png').convert_alpha()
+
+        self.speed = SPEED
+
+        self.current_image = 0
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.rect = self.image.get_rect()
+        self.rect[0] = SCREEN_WIDTH / 2
+        self.rect[1] = SCREEN_HEIGHT / 2
+
+    def update(self):
+
+        self.speed += GRAVITY
+
+        # Update height
+        self.rect[1] += self.speed
+    
+    def bump(self):
+        self.speed = -SPEED
+
+
+class Pipe(pygame.sprite.Sprite):
+    
+    def __init__(self, inverted, xpos, ysize):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\pipe.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (PIPE_WIDTH,PIPE_HEIGHT))
+
+        self.rect = self.image.get_rect()
+        self.rect[0] = xpos
+
+        if inverted:
+            self.image = pygame.transform.flip(self.image, False, True)
+            self.rect[1] = - (self.rect[3] - ysize)
+        else:
+            self.rect[1] = SCREEN_HEIGHT - ysize
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.rect[0] -= GAME_SPEED
+
+class Ground(pygame.sprite.Sprite):
+
+    def __init__(self, xpos):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\floor.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (GROUND_WIDTH, GROUND_HEIGHT))
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.rect = self.image.get_rect()
+        self.rect[0] = xpos
+        self.rect[1] = SCREEN_HEIGHT - GROUND_HEIGHT
+    
+    def update(self):
+        self.rect[0] -= GAME_SPEED
+
+def is_off_screen(sprite):
+    return sprite.rect[0] < -(sprite.rect[2])
+
+def get_random_pipes(xpos):
+    size = random.randint(100, 300)
+    pipe = Pipe(False, xpos, size)
+    pipe_inverted = Pipe(True, xpos, SCREEN_HEIGHT - size - PIPE_GAP)
+    return (pipe, pipe_inverted)
 
 pygame.init()
-screen = pygame.display.set_mode((576,1024))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+BACKGROUND = pygame.image.load(r'D:\Codes\Python\PROJECTS\TSSPython_20B030018\Week 3\flappy_assets\background.png')
+BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+bird_group = pygame.sprite.Group()
+bird = Bird()
+bird_group.add(bird)
+
+ground_group = pygame.sprite.Group()
+for i in range(2):
+    ground = Ground(GROUND_WIDTH * i)
+    ground_group.add(ground)
+
+pipe_group = pygame.sprite.Group()
+for i in range(2):
+    pipes = get_random_pipes(SCREEN_WIDTH * i + 800)
+    pipe_group.add(pipes[0])
+    pipe_group.add(pipes[1])
+
+
 clock = pygame.time.Clock()
-game_font = pygame.font.SysFont(None,40)
-
-
-gravity = 0.25
-bird_movement = 0
-game_active = True
-score = 0
-floor_x_pos = 0
-
-#Load the necessary images
-
-bg_surface = pygame.image.load('flappy_assets/background.png')
-bg_surface = pygame.transform.scale2x(bg_surface)
-
-floor_surface = pygame.image.load('flappy_assets/floor.png')
-floor_surface = pygame.transform.scale2x(floor_surface)
-
-bird_surface = pygame.transform.scale2x(pygame.image.load('flappy_assets/bluebird.png'))
-bird_rect = bird_surface.get_rect(center = (100,512))
-
-pipe_surface = pygame.image.load('flappy_assets/pipe.png')
-pipe_surface = pygame.transform.scale2x(pipe_surface)
-
-game_over_surface = pygame.transform.scale2x(pygame.image.load('flappy_assets/message.png'))
-game_over_rect = game_over_surface.get_rect(center = (288,512))
-
-
-pipe_list = [i for i in range(10000)]
-
-# We have created this custom event which will be automatically trigerred according to the time set
-SPAWNPIPE = pygame.USEREVENT
-pygame.time.set_timer(SPAWNPIPE,1200)
-pipe_height = [400,600,800]
-
-
-
-
-
-def create_pipe(pipe_list):
-	pipes = []
-	pipe_rect_list = []
-	for i in range(len(pipe_list)):
-    		pipes = pipes  + [pygame.image.load('pipe.png')]
-    		pipe_rect_list  = pipe_rect_list + [pipes[i].get_rect(topleft = [576 + (10*i), 800])]
-	return pipes, pipe_rect_list
-
-
-def move_pipes(pipe_rect_list):
-	for i in range(len(pipe_rect_list)):
-    		pipe_rect_list[i].left += 5
-	return pipe_rect_list
-
-
-def draw_pipes(pipes, pipe_rect_list):
-    	for i in range(len(pipe_rect_list)):
-    			screen.blit(pipes[i], pipe_rect_list[i])
-
-
-
-def draw_floor():
-	"""Draw the floor surfaces on the screen. Hint: Use 2 floor surfaces to ensure proper motion of the floor"""
-
-
-
-
-
-
-
-def check_collision(pipes):
-	"""
-	check whether the bird might have collided with any of the pipes you can use
-	colliderect(). Or the bird might have hit the floor or crossed the top.
-	"""
-
-
-
-
-
-
-
-
-
-def score_display(game_state):
-	"""
-	display the score on the screen. Note depending on what the game state is 
-	score will have to be displayed at different places.
-	"""
-
-
-
-
-
-
-
-def check_for_events():
-	"""
-	Will contain main for loop listening for events. It should have code to respond to 
-	quitting, pressing the spacebar(if game is active it causes the jump, use bird_movement attribute and if not
-	it should turn the game active and start it). It should also listen for the SPAWNPIPE event 
-	"""
-
-
-
-
-
-
-
-
-def update_bird(pipe_list):
-	"""
-	Update the postion of the bird, update the bird_movement variable for gravity, 
-	check for collisions with the pipes
-	"""
-
-
-
-
-
-def update_pipes(pipe_list, pipes, pipe_rect_list):
-	move_pipes(pipe_rect_list)
-	draw_pipes(pipes, pipe_rect_list)
-
-
-
-def update_score():
-	"""
-	Update the score if the bird has passed through the opening
-	"""
-
-
-
-
-
-comp_list = create_pipe(pipe_list)
 
 while True:
-	check_for_events()
-	screen.blit(bg_surface,(0,0))
+    clock.tick(30)
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
 
-	if game_active:
-		update_bird(pipe_list)
-		update_pipes(pipe_list, comp_list[0], comp_list[1])
+        if event.type == KEYDOWN:
+            if event.key == K_SPACE:
+                bird.bump()
 
-		update_score()
-		score_display('main_game')
-		
-	else:
-		screen.blit(game_over_surface,game_over_rect)
-		score_display('game_over')
+    screen.blit(BACKGROUND, (0, 0))
 
+    if is_off_screen(ground_group.sprites()[0]):
+        ground_group.remove(ground_group.sprites()[0])
 
-	# Change the position of the floor and draw it. Make sure if it reaches the left end reset it
-	
+        new_ground = Ground(GROUND_WIDTH - 20)
+        ground_group.add(new_ground)
 
+    if is_off_screen(pipe_group.sprites()[0]):
+        pipe_group.remove(pipe_group.sprites()[0])
+        pipe_group.remove(pipe_group.sprites()[0])
 
-	pygame.display.flip()
+        pipes = get_random_pipes(SCREEN_WIDTH * 2)
 
-	# set the speed of the game
-	clock.tick(120)
+        pipe_group.add(pipes[0])
+        pipe_group.add(pipes[1])
+
+    bird_group.update()
+    ground_group.update()
+    pipe_group.update()
+
+    bird_group.draw(screen)
+    pipe_group.draw(screen)
+    ground_group.draw(screen)
+
+    pygame.display.update()
+
+    if (pygame.sprite.groupcollide(bird_group, ground_group, False, False, pygame.sprite.collide_mask) or
+       pygame.sprite.groupcollide(bird_group, pipe_group, False, False, pygame.sprite.collide_mask)):
+        # Game over
+        input()
+        break
