@@ -43,7 +43,7 @@ def draw_score(game_state):
 			screen.blit(score_text, score_rect)
 
 			high_score_text = score_font.render(f"High Score: {high_score}", True, (255,255,255))
-			high_score_rect = high_score_text.get_rect(center=(WIDTH//2, 506))
+			high_score_rect = high_score_text.get_rect(center=(WIDTH//2, 470))
 			screen.blit(high_score_text, high_score_rect)
 
 def score_update():
