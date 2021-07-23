@@ -43,7 +43,7 @@ def draw_score(game_state):
 			screen.blit(score_text, score_rect)
 
 			high_score_text = score_font.render(f"High Score: {high_score}", True, (255,255,255))
-			high_score_rect = high_score_text.get_rect(center=(WIDTH//2, 470))
+			high_score_rect = high_score_text.get_rect(center=(WIDTH//2, 440))
 			screen.blit(high_score_text, high_score_rect)
 
 def score_update():
@@ -68,12 +68,8 @@ pygame.display.set_caption("Flappy Bird")
 background_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\background.png").convert()
 floor_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\floor.png").convert()
 floor_x = 0
-bird_upflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
-bird_midflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
-bird_downflap = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
+bird_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\bluebird.png").convert_alpha()
 
-BIRDS = [bird_upflap, bird_midflap, bird_downflap]
-bird_index = 0
 BIRD_FLAP = pygame.USEREVENT
 pygame.time.set_timer(BIRD_FLAP, 100)
 
@@ -82,14 +78,11 @@ high_score = 0
 is_score_time = True
 score_font = pygame.font.Font('D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\04B_19.ttf', 27)
 
-bird_image = BIRDS[bird_index]
 bird_rect = bird_image.get_rect(center=(67, 622//2))
 
 bird_movement = 0
 gravity = 0.098
 
-
-# Pipes
 pipe_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\pipe.png").convert_alpha()
 pipe_height = [280, 350, 400, 490]
 
@@ -97,14 +90,10 @@ PIPES = []
 CREATE_PIPES = pygame.USEREVENT+1
 pygame.time.set_timer(CREATE_PIPES, 1000)
 
-
-# Game over
 game_over = False
 game_over_image = pygame.image.load("D:\\Codes\\Python\\PROJECTS\\TSSPython_20B030018\Week 3\\flappy_assets\\message.png").convert_alpha()
-game_over_rect = game_over_image.get_rect(center=(WIDTH//2,HEIGHT//2))
+game_over_rect = game_over_image.get_rect(center=(WIDTH//2,(HEIGHT//2)-40))
 
-
-# Game loop
 while True:
 	clock.tick(120)
 	for event in pygame.event.get():
@@ -126,12 +115,6 @@ while True:
 				score = 0
 
 		if event.type == BIRD_FLAP:
-			bird_index += 1
-
-			if bird_index > 2:
-				bird_index = 0
-
-			bird_image = BIRDS[bird_index]
 			bird_rect = bird_image.get_rect(center=bird_rect.center)
 
 		if event.type == CREATE_PIPES:
